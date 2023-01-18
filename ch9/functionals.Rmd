@@ -60,3 +60,49 @@ p_values <- map_dbl(trials, "p.value")
 print(p_values)
 hist(p_values)
 ```
+
+#9.4.6 Exercises
+## #1 Explain the results of modify(mtcars, 1).
+It would return the first row of the `mtcars` dataset.
+
+## #2 Rewrite the following code to use iwalk() instead of walk2(). What are the advantages and disadvantages?
+#### cyls <- split(mtcars, mtcars$cyl)
+#### paths <- file.path(temp, paste0("cyl-", names(cyls), ".csv"))
+#### walk2(cyls, paths, write.csv)
+
+```{r}
+#cyls <- split(mtcars, mtcars$cyl)
+#paths <- file.path(temp, paste0("cyl-", names(cyls), ".csv"))
+#iwalk(cyls, ~write.csv(.x, file = .y))
+```
+Advantages of using `iwalk()`:
+
+* The code is more readable, since the function and its arguments are specified in a more explicit way.
+* It allows you to use variable and formula input.
+* It's more flexible than walk2 and walk, it allows you to apply different functions to different elements.
+Disadvantages of using `iwalk()`:
+
+* It can be more complex to understand and use, particularly if you are not familiar with the "tidy evaluation" approach.
+* It can be less efficient than walk2 for some operations, as it requires more overhead to process the function and its arguments.
+
+I don't think `iwalk()` is actually better in this situation.
+
+## #3 Explain how the following code transforms a data frame using functions stored in a list.
+
+### trans <- list(
+###  disp = function(x) x * 0.0163871,
+###  am = function(x) factor(x, labels = c("auto", "manual"))
+### )
+
+### nm <- names(trans)
+### mtcars[nm] <- map2(trans, mtcars[nm], function(f, var) f(var))
+### Compare and contrast the map2() approach to this map() approach:
+
+### mtcars[nm] <- map(nm, ~ trans[[.x]](mtcars[[.x]]))
+
+The code uses a `list` called `trans` to store two `functions`, one to transform the `disp` variable and another to transform the `am` variable. The `map2()` function is then used to apply these functions to the corresponding variables in the `mtcars` data frame.
+
+## #4 What does write.csv() return, i.e. what happens if you use it with map2() instead of walk2()?
+If you use `write.csv()` with `map2()` instead of `walk2()`, the `map2()` function will apply `write.csv()` to each element of two lists, but since `write.csv()` returns NULL, the output of `map2()` will be a list of NULL values.
+
+This means that `map2()` will execute the `write.csv()` function for each element of the two lists and write the data frame to a CSV file, but it won't return any value or output that you can use in your R script.
