@@ -41,17 +41,57 @@ where <- function(f, x) {
 } 
 ```
 
-```
-simple_reduce <- function(x, f) {
-  out <- x[[1]]
-  for (i in seq(2, length(x))) {
-    out <- f(out, x[[i]])
+
+3_version2) Implement the span() function from Haskell: given a list x and a predicate function f, span(x, f) returns the location of the longest sequential run of elements where the predicate is true. (Hint: you might find rle() helpful.)
+```{r}
+
+span <- function(x, f) {
+  idx <- unname(map_lgl(x, ~ f(.x)))
+  rle <- rle(idx) 
+  if (!any(rle$values)) {
+    return(integer(0))
   }
-  out
+  longest <- max(rle$lengths[rle$values])
+  longest_idx <- which(rle$values & rle$lengths == longest)[1]
+  ind_before_longest <- sum(rle$lengths[seq_len(longest_idx - 1)])
+  out_start <- ind_before_longest + 1L
+  out_end <- ind_before_longest + longest
+  out_start:out_end
 }
+span(c(0,  0,  0,  0,  0), is.na)
+span(c(NA, 0,  0,  0,  0), is.na)
+span(c(NA, 0, NA, NA, NA), is.na)
 ```
-Implement the span() function from Haskell: given a list x and a predicate function f, span(x, f) returns the location of the longest sequential run of elements where the predicate is true. (Hint: you might find rle() helpful.)
 
-Implement arg_max(). It should take a function and a vector of inputs, and return the elements of the input where the function returns the highest value. For example, arg_max(-10:5, function(x) x ^ 2) should return -10. arg_max(-5:5, function(x) x ^ 2) should return c(-5, 5). Also implement the matching arg_min() function.
 
-The function below scales a vector so it falls in the range [0, 1]. How would you apply it to every column of a data frame? How would you apply it to every numeric column in a data frame?
+4) implement arg_max(). It should take a function and a vector of inputs, and return the elements of the input where the function returns the highest value. For example, arg_max(-10:5, function(x) x ^ 2) should return -10. arg_max(-5:5, function(x) x ^ 2) should return c(-5, 5). Also implement the matching arg_min() function.
+
+```{r}
+arg_max <- function(x, f) {
+  y <- map_dbl(x, f)
+  #print(y)
+  x[y == max(y)]
+}
+arg_min <- function(x, f) {
+  y <- map_dbl(x, f)
+  x[y == min(y)]
+}
+arg_max(-10:5, function(x) x ^ 2)
+arg_min(-10:5, function(x) x ^ 2)
+```
+
+
+```{r}
+fixed_point_algorithm <- function(f, x0, tol=1e-8, max_iter=1000) {
+  x_old <- x0
+  for (i in 1:max_iter) {
+    x_new <- f(x_old)
+    if (abs(x_new - x_old) < tol) {
+      return(x_new)
+    }
+    x_old <- x_new
+  }
+  return(x_new)
+}
+fixed_point_algorithm(function(x) x^2, c(3,3,5))
+```

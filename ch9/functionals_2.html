@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ian" />
 
-<meta name="date" content="2023-01-18" />
+<meta name="date" content="2023-02-01" />
 
 <title>Chapter 9 - functionals pt2</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">Chapter 9 - functionals pt2</h1>
 <h4 class="author">Ian</h4>
-<h4 class="date">2023-01-18</h4>
+<h4 class="date">2023-02-01</h4>
 
 </div>
 
@@ -360,10 +360,10 @@ display: none;
 <pre class="r"><code>l &lt;- map(1:4, ~ sample(1:10, 15, replace = T))
 str(l)</code></pre>
 <pre><code>## List of 4
-##  $ : int [1:15] 8 3 6 3 6 3 5 4 6 10 ...
-##  $ : int [1:15] 3 7 10 3 8 1 2 7 1 7 ...
-##  $ : int [1:15] 8 9 2 3 1 4 8 1 4 4 ...
-##  $ : int [1:15] 6 3 6 4 3 9 8 6 5 9 ...</code></pre>
+##  $ : int [1:15] 4 10 6 1 1 10 4 4 3 4 ...
+##  $ : int [1:15] 5 6 9 9 10 2 10 6 7 10 ...
+##  $ : int [1:15] 10 2 10 2 4 5 9 10 3 8 ...
+##  $ : int [1:15] 7 1 7 3 8 2 8 6 2 10 ...</code></pre>
 <pre class="r"><code>#&gt; List of 4
 #&gt;  $ : int [1:15] 7 1 8 8 3 8 2 4 7 10 ...
 #&gt;  $ : int [1:15] 3 1 10 2 5 2 9 8 5 4 ...
@@ -388,25 +388,56 @@ summary statistic to every numeric column in a data frame</li>
 <pre class="r"><code>vapply_num &lt;- function(X, FUN, FUN.VALUE){
   vapply(Filter(is.numeric, X), FUN, FUN.VALUE)
 }</code></pre>
-<pre><code>simple_reduce &lt;- function(x, f) {
-  out &lt;- x[[1]]
-  for (i in seq(2, length(x))) {
-    out &lt;- f(out, x[[i]])
+<ol start="3" style="list-style-type: decimal">
+<li>What’s the relationship between which() and Position()? What’s the
+relationship between where() and Filter()?</li>
+</ol>
+<pre class="r"><code>where &lt;- function(f, x) {
+  vapply(x, f, logical(1))
+} </code></pre>
+<p>3_version2) Implement the span() function from Haskell: given a list
+x and a predicate function f, span(x, f) returns the location of the
+longest sequential run of elements where the predicate is true. (Hint:
+you might find rle() helpful.)</p>
+<pre class="r"><code>span &lt;- function(x, f) {
+  idx &lt;- unname(map_lgl(x, ~ f(.x)))
+  rle &lt;- rle(idx) 
+  if (!any(rle$values)) {
+    return(integer(0))
   }
-  out
-}</code></pre>
-<p>Implement the span() function from Haskell: given a list x and a
-predicate function f, span(x, f) returns the location of the longest
-sequential run of elements where the predicate is true. (Hint: you might
-find rle() helpful.)</p>
-<p>Implement arg_max(). It should take a function and a vector of
+  longest &lt;- max(rle$lengths[rle$values])
+  longest_idx &lt;- which(rle$values &amp; rle$lengths == longest)[1]
+  ind_before_longest &lt;- sum(rle$lengths[seq_len(longest_idx - 1)])
+  out_start &lt;- ind_before_longest + 1L
+  out_end &lt;- ind_before_longest + longest
+  out_start:out_end
+}
+span(c(0,  0,  0,  0,  0), is.na)</code></pre>
+<pre><code>## integer(0)</code></pre>
+<pre class="r"><code>span(c(NA, 0,  0,  0,  0), is.na)</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>span(c(NA, 0, NA, NA, NA), is.na)</code></pre>
+<pre><code>## [1] 3 4 5</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li>implement arg_max(). It should take a function and a vector of
 inputs, and return the elements of the input where the function returns
 the highest value. For example, arg_max(-10:5, function(x) x ^ 2) should
 return -10. arg_max(-5:5, function(x) x ^ 2) should return c(-5, 5).
-Also implement the matching arg_min() function.</p>
-<p>The function below scales a vector so it falls in the range [0, 1].
-How would you apply it to every column of a data frame? How would you
-apply it to every numeric column in a data frame?</p>
+Also implement the matching arg_min() function.</li>
+</ol>
+<pre class="r"><code>arg_max &lt;- function(x, f) {
+  y &lt;- map_dbl(x, f)
+  #print(y)
+  x[y == max(y)]
+}
+arg_min &lt;- function(x, f) {
+  y &lt;- map_dbl(x, f)
+  x[y == min(y)]
+}
+arg_max(-10:5, function(x) x ^ 2)</code></pre>
+<pre><code>## [1] -10</code></pre>
+<pre class="r"><code>arg_min(-10:5, function(x) x ^ 2)</code></pre>
+<pre><code>## [1] 0</code></pre>
 </div>
 
 
