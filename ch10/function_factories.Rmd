@@ -1,0 +1,12 @@
+---
+title: "Chapter 10 - Function factories"
+author: "Ian"
+date: "2023-02-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library("purrr")
+```
