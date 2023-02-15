@@ -4,3 +4,126 @@ author: "Ian"
 date: "2023-02-01"
 output: html_document
 ---
+
+```{r}
+library(ggplot2)
+
+library(bench)
+
+```
+
+```{r}
+boxcox1 <- function(x, lambda) {
+  stopifnot(length(lambda) == 1)
+  
+  if (lambda == 0) {
+    log(x)
+  } else {
+    (x ^ lambda - 1) / lambda
+  }
+}
+```
+
+```{r}
+boxcox2 <- function(lambda) {
+  if (lambda == 0) {
+    function(x) log(x)
+  } else {
+    function(x) (x ^ lambda - 1) / lambda
+  }
+}
+
+stat_boxcox <- function(lambda) {
+  stat_function(aes(colour = lambda), fun = boxcox2(lambda), size = 1)
+}
+
+ggplot(data.frame(x = c(0, 5)), aes(x)) + 
+  lapply(c(0.5, 1, 1.5), stat_boxcox) + 
+  scale_colour_viridis_c(limits = c(0, 1.5))
+
+# visually, log() does seem to make sense as the transformation
+# for lambda = 0; as values get smaller and smaller, the function
+# gets close and closer to a log transformation
+ggplot(data.frame(x = c(0.01, 1)), aes(x)) + 
+  lapply(c(0.5, 0.25, 0.1, 0), stat_boxcox) + 
+  scale_colour_viridis_c(limits = c(0, 1.5))
+
+```
+  
+```{r}
+  
+  boot_permute <- function(df, var) {
+  n <- nrow(df)
+  force(var)
+  
+  function() {
+    col <- df[[var]]
+    col[sample(n, replace = TRUE)]
+  }
+}
+
+boot_mtcars1 <- boot_permute(mtcars, "mpg")
+head(boot_mtcars1())
+#> [1] 16.4 22.8 22.8 22.8 16.4 19.2
+head(boot_mtcars1())
+#> [1] 17.8 18.7 30.4 30.4 16.4 21.0
+
+```
+
+# #1 In boot_model(), why don’t I need to force the evaluation of df or model?
+
+The `lm()` function caleld by `boot_model()` will evaluate df and model, so forcing it is redundant.
+
+# #2 Why might you formulate the Box-Cox transformation like this?
+
+# # 3 Why don’t you need to worry that boot_permute() stores a copy of the data inside the function that it generates?
+```{r}
+boot_permute <- function(df, var) {
+  n <- nrow(df)
+  force(var)
+  
+  function() {
+    col <- df[[var]]
+    col[sample(n, replace = TRUE)]
+  }
+}
+```
+Because the dataframe is passed into the column, it is not storing the entire dataframe in the function, just a reference to the column.
+
+# #4 How much time does ll_poisson2() save compared to ll_poisson1()? Use bench::mark() to see how much faster the optimisation occurs. How does
+# changing the length of x change the results?
+
+```{r}
+ll_poisson1 <- function(x) {
+  n <- length(x)
+
+  function(lambda) {
+    log(lambda) * sum(x) - n * lambda - sum(lfactorial(x))
+  }
+}
+
+ll_poisson2 <- function(x) {
+  n <- length(x)
+  sum_x <- sum(x)
+  c <- sum(lfactorial(x))
+
+  function(lambda) {
+    log(lambda) * sum_x - n * lambda - c
+  }
+}
+
+
+set.seed(123)
+x <- rpois(100, 5)
+
+bm <- mark(
+  ll_poisson1(x),
+  ll_poisson2(x),
+  check = FALSE
+)
+
+print(bm, relative = TRUE)
+
+```
+
+Changing X narrows the gap, but ultimately ``ll_poisson2()` is faster. It does this by pre-computing many of the more challenging calculations before goign into the lamda function. 
