@@ -10,3 +10,43 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library("purrr")
 ```
+
+
+```{r}
+power1 <- function(exp) {
+  function(x) {
+    x ^ exp
+  }
+}
+
+square <- power1(2)
+cube <- power1(3)
+
+```
+
+```{r}
+square(3)
+#> [1] 9
+cube(3)
+#> [1] 27
+```
+```{r}
+library(rlang)
+library(ggplot2)
+library(scales)
+```
+
+```{r}
+square
+#> function(x) {
+#>     x ^ exp
+#>   }
+#> <environment: 0x7fe851f7ccc0>
+
+cube
+#> function(x) {
+#>     x ^ exp
+#>   }
+#> <bytecode: 0x7fe85512a410>
+#> <environment: 0x7fe85508c390>insta
+```

@@ -1,0 +1,6 @@
+---
+title: "Chapter 10 - Function factories pt  2"
+author: "Ian"
+date: "2023-02-01"
+output: html_document
+---
