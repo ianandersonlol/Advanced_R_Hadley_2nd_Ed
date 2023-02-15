@@ -127,3 +127,16 @@ print(bm, relative = TRUE)
 ```
 
 Changing X narrows the gap, but ultimately ``ll_poisson2()` is faster. It does this by pre-computing many of the more challenging calculations before goign into the lamda function. 
+
+
+#  #1 Which of the following commands is equivalent to with(x, f(z))?
+
+# *x$f(x$z).
+# *f(x$z).
+# *x$f(z).
+# *f(z).
+# *It depends.
+
+it would be `f(x$z)`
+
+the commands of with are `data-frame` and an `R expression` What it is asking is, with dataframe X, do f(z), which is the equivalent of `f(x$z)`

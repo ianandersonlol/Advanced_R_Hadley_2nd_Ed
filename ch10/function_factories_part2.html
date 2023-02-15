@@ -406,10 +406,10 @@ ggplot(data.frame(x = c(0.01, 1)), aes(x)) +
 
 boot_mtcars1 &lt;- boot_permute(mtcars, &quot;mpg&quot;)
 head(boot_mtcars1())</code></pre>
-<pre><code>## [1] 18.1 17.3 15.0 26.0 19.2 32.4</code></pre>
+<pre><code>## [1] 19.2 15.5 21.5 21.0 21.0 15.0</code></pre>
 <pre class="r"><code>#&gt; [1] 16.4 22.8 22.8 22.8 16.4 19.2
 head(boot_mtcars1())</code></pre>
-<pre><code>## [1] 24.4 18.1 15.2 33.9 15.0 33.9</code></pre>
+<pre><code>## [1] 30.4 15.5 19.2 19.2 22.8 10.4</code></pre>
 <pre class="r"><code>#&gt; [1] 17.8 18.7 30.4 30.4 16.4 21.0</code></pre>
 <div id="in-boot_model-why-dont-i-need-to-force-the-evaluation-of-df-or-model" class="section level1">
 <h1>#1 In boot_model(), why don’t I need to force the evaluation of df
@@ -476,11 +476,31 @@ print(bm, relative = TRUE)</code></pre>
 <pre><code>## # A tibble: 2 × 13
 ##   expression          min   median `itr/sec` mem_a…¹ gc/se…² n_itr  n_gc total…³
 ##   &lt;bch:expr&gt;     &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:b&gt;   &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;bch:t&gt;
-## 1 ll_poisson1(x) 122.99ns 205.01ns  3887790.      0B   389.   9999     1  2.57ms
-## 2 ll_poisson2(x)   4.92µs   5.17µs   178861.  3.01KB    17.9  9999     1  55.9ms
+## 1 ll_poisson1(x) 123.05ns 205.01ns  4084347.      0B   408.   9999     1  2.45ms
+## 2 ll_poisson2(x)   4.88µs   5.21µs   177833.  3.01KB    17.8  9999     1 56.23ms
 ## # … with 4 more variables: result &lt;list&gt;, memory &lt;list&gt;, time &lt;list&gt;,
 ## #   gc &lt;list&gt;, and abbreviated variable names ¹​mem_alloc, ²​`gc/sec`,
 ## #   ³​total_time</code></pre>
+<p>Changing X narrows the gap, but ultimately
+`<code>ll_poisson2()</code> is faster. It does this by pre-computing
+many of the more challenging calculations before goign into the lamda
+function.</p>
+</div>
+<div id="which-of-the-following-commands-is-equivalent-to-withx-fz" class="section level1">
+<h1>#1 Which of the following commands is equivalent to with(x,
+f(z))?</h1>
+</div>
+<div id="xfxz." class="section level1">
+<h1>*x<span class="math inline">\(f(x\)</span>z).</h1>
+</div>
+<div id="fxz.-xfz." class="section level1">
+<h1>*f(x<span class="math inline">\(z). # *x\)</span>f(z).</h1>
+</div>
+<div id="fz." class="section level1">
+<h1>*f(z).</h1>
+</div>
+<div id="it-depends." class="section level1">
+<h1>*It depends.</h1>
 </div>
 
 
